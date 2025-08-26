@@ -6,40 +6,68 @@ serviceAccount:
   create: true
   name: ""
 
+# Hardware configuration
+hardware: "gpu"  # Options: "gpu", "cpu", "hpu"
+
 # Model configuration
 model:
   maxModelLen: 8192
 
-
-# Resource requirements (adjust based on GPU availability)
+# Resource requirements (adjust based on availability)
 resources:
-  limits:
-    nvidia.com/gpu: 1
-    memory: 24Gi
-    cpu: 4
-  requests:
-    nvidia.com/gpu: 1
-    memory: 16Gi
-    cpu: 2
+  gpu:
+    limits:
+      nvidia.com/gpu: 1
+      memory: 24Gi
+      cpu: 4
+    requests:
+      nvidia.com/gpu: 1
+      memory: 16Gi
+      cpu: 2
+  cpu:
+    limits:
+      cpu: '8'
+      memory: 24Gi
+    requests:
+      cpu: '4'
+      memory: 12Gi
+  hpu:
+    limits:
+      cpu: '6'
+      memory: 16Gi
+      habana.ai/gaudi: '1'
+    requests:
+      cpu: '4'
+      memory: 8Gi
+      habana.ai/gaudi: '1
 
 
 nodeSelector:
-  nvidia.com/gpu.present: "true"
+  gpu:
+    nvidia.com/gpu.present: "true"
+  cpu: {}
+  hpu: {}
 
 tolerations:
-  - effect: NoSchedule
-    key: nvidia.com/gpu
-    value: NVIDIA-A10G-SHARED
+  gpu:
+    - effect: NoSchedule
+      key: nvidia.com/gpu
+      value: NVIDIA-A10G-SHARED
+  cpu: {}
+  hpu: {}
 
 affinity:
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: nvidia.com/gpu.present
-          operator: In
-          values:
-          - "true"
+  gpu:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: nvidia.com/gpu.present
+            operator: In
+            values:
+            - "true"
+  cpu: {}
+  hpu: {}
 
 
 # Environment variables
@@ -59,8 +87,32 @@ inferenceService:
 
 # Serving Runtime configuration
 servingRuntime:
-  enabled: true  # Set to true to create a ServingRuntime resource
-  image: "quay.io/modh/vllm@sha256:0d55419f3d168fd80868a36ac89815dded9e063937a8409b7edf3529771383f3"
-  shmSizeLimit: "1Gi"
-  memBufferBytes: 134217728  # 128MB
-  modelLoadingTimeoutMillis: 90000  # 90 seconds
+  common:
+    enabled: true  # Set to true to create a ServingRuntime resource
+    shmSizeLimit: "1Gi"
+    memBufferBytes: 134217728  # 128MB
+    modelLoadingTimeoutMillis: 90000  # 90 seconds
+  gpu:
+    name: "llama32-3b-gpu"
+    recommendedAccelerators: '["nvidia.com/gpu"]'
+    templateDisplayName: "vLLM ServingRuntime for KServe"
+    templateName: "vllm-runtime"
+    acceleratorName: "gpu"
+    displayName: "llama32-3b-gpu"
+    image: "quay.io/modh/vllm@sha256:0d55419f3d168fd80868a36ac89815dded9e063937a8409b7edf3529771383f3"
+  cpu:
+    name: "llama32-3b-cpu"
+    recommendedAccelerators: '["cpu"]'
+    templateDisplayName: "vLLM CPU ServingRuntime for KServe"
+    templateName: "vllm-cpu-runtime"
+    acceleratorName: "None"
+    displayName: "llama32-3b-cpu"
+    image: "public.ecr.aws/q9t5s3a7/vllm-cpu-release-repo:latest"
+  hpu:
+    name: "llama32-3b-hpu"
+    recommendedAccelerators: '["habana.ai/gaudi"]'
+    templateDisplayName: vLLM Intel Gaudi Accelerator ServingRuntime for KServe
+    templateName: "vllm-gaudi-runtime"
+    acceleratorName: "gaudi-hpu-profile"
+    displayName: "llama32-3b-hpu"
+    image: "quay.io/modh/vllm@sha256:af6a071be36d8a99476f145d1589d7ede97d2760b93335b14ca26de7417e438c"

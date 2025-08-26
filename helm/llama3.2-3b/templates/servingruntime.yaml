@@ -2,12 +2,16 @@
 apiVersion: serving.kserve.io/v1alpha1
 kind: ServingRuntime
 metadata:
-  name: llama3-2-3b
+  name: {{ .Values.servingRuntime.name | default "llama32-3b" }}
   labels:
     {{- include "llama3-2-3b.labels" . | nindent 4 }}
   annotations:
     opendatahub.io/apiProtocol: REST
-    opendatahub.io/accelerator-name: migrated-gpu
+    opendatahub.io/recommended-accelerators: {{ .Values.servingRuntime.recommendedAccelerators | default '["nvidia.com/gpu"]' }}
+    opendatahub.io/template-display-name: {{ .Values.servingRuntime.templateDisplayName | default "vLLM ServingRuntime for KServe" }}
+    opendatahub.io/template-name: {{ .Values.servingRuntime.templateName | default "vllm_runtime" }}
+    opendatahub.io/accelerator-name: {{ .Values.servingRuntime.acceleratorName | default "migrated-gpu" }}
+    openshift.io/display-name: {{ .Values.servingRuntime.displayName | default "llama32-3b" }}
 spec:
   supportedModelFormats:
   - name: vLLM
