@@ -39,8 +39,7 @@ resources:
     requests:
       cpu: '4'
       memory: 8Gi
-      habana.ai/gaudi: '1
-
+      habana.ai/gaudi: '1'
 
 nodeSelector:
   gpu:
@@ -69,7 +68,6 @@ affinity:
   cpu: {}
   hpu: {}
 
-
 # Environment variables
 env:
   CUDA_VISIBLE_DEVICES: "0"
@@ -94,7 +92,8 @@ servingRuntime:
     modelLoadingTimeoutMillis: 90000  # 90 seconds
   gpu:
     name: "llama32-3b-gpu"
-    recommendedAccelerators: '["nvidia.com/gpu"]'
+    recommendedAccelerators:
+      - "nvidia.com/gpu"
     templateDisplayName: "vLLM ServingRuntime for KServe"
     templateName: "vllm-runtime"
     acceleratorName: "gpu"
@@ -102,7 +101,8 @@ servingRuntime:
     image: "quay.io/modh/vllm@sha256:0d55419f3d168fd80868a36ac89815dded9e063937a8409b7edf3529771383f3"
   cpu:
     name: "llama32-3b-cpu"
-    recommendedAccelerators: '["cpu"]'
+    recommendedAccelerators:
+      - "cpu"
     templateDisplayName: "vLLM CPU ServingRuntime for KServe"
     templateName: "vllm-cpu-runtime"
     acceleratorName: "None"
@@ -110,8 +110,9 @@ servingRuntime:
     image: "public.ecr.aws/q9t5s3a7/vllm-cpu-release-repo:latest"
   hpu:
     name: "llama32-3b-hpu"
-    recommendedAccelerators: '["habana.ai/gaudi"]'
-    templateDisplayName: vLLM Intel Gaudi Accelerator ServingRuntime for KServe
+    recommendedAccelerators:
+      - "habana.ai/gaudi"
+    templateDisplayName: "vLLM Intel Gaudi Accelerator ServingRuntime for KServe"
     templateName: "vllm-gaudi-runtime"
     acceleratorName: "gaudi-hpu-profile"
     displayName: "llama32-3b-hpu"
