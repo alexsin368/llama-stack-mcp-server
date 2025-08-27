@@ -7,7 +7,7 @@ serviceAccount:
   name: ""
 
 # Hardware configuration
-hardware: "gpu"  # Options: "gpu", "cpu", "hpu"
+hardware: "hpu"  # Options: "gpu", "cpu", "hpu"
 
 # Model configuration
 model:
@@ -45,15 +45,19 @@ nodeSelector:
   gpu:
     nvidia.com/gpu.present: "true"
   cpu: {}
-  hpu: {}
+  hpu:
+    habana.ai/gaudi: "true"
 
 tolerations:
   gpu:
     - effect: NoSchedule
       key: nvidia.com/gpu
       value: NVIDIA-A10G-SHARED
-  cpu: {}
-  hpu: {}
+  cpu: []
+  hpu:
+    - key: "habana.ai/gaudi"
+      operator: "Exists"
+      effect: "NoSchedule"
 
 affinity:
   gpu:
@@ -76,12 +80,21 @@ env:
 
 # InferenceService configuration
 inferenceService:
-  displayName: "llama3.2-3b"
-  maxReplicas: 1
-  minReplicas: 1
-  modelFormat: "vLLM"
-  modelName: ""
-  storageUri: "oci://quay.io/redhat-ai-services/modelcar-catalog:llama-3.2-3b-instruct"
+  common:
+    maxReplicas: 1
+    minReplicas: 1
+    modelFormat: "vLLM"
+    modelName: ""
+    storageUri: "oci://quay.io/redhat-ai-services/modelcar-catalog:llama-3.2-3b-instruct"
+  gpu:
+    displayName: "llama3.2-3b-gpu"
+    runtime: "llama3-2-3b-gpu" # must match with servingRuntime name
+  cpu:
+    displayName: "llama3.2-3b-cpu"
+    runtime: "llama3-2-3b-cpu" # must match with servingRuntime name
+  hpu:
+    displayName: "llama3.2-3b-hpu"
+    runtime: "llama3-2-3b-hpu" # must match with servingRuntime name
 
 # Serving Runtime configuration
 servingRuntime:
@@ -91,7 +104,7 @@ servingRuntime:
     memBufferBytes: 134217728  # 128MB
     modelLoadingTimeoutMillis: 90000  # 90 seconds
   gpu:
-    name: "llama32-3b-gpu"
+    name: "llama32-3b-gpu" # must match with inferenceService runtime
     recommendedAccelerators:
       - "nvidia.com/gpu"
     templateDisplayName: "vLLM ServingRuntime for KServe"
@@ -100,7 +113,7 @@ servingRuntime:
     displayName: "llama32-3b-gpu"
     image: "quay.io/modh/vllm@sha256:0d55419f3d168fd80868a36ac89815dded9e063937a8409b7edf3529771383f3"
   cpu:
-    name: "llama32-3b-cpu"
+    name: "llama32-3b-cpu" # must match with inferenceService runtime
     recommendedAccelerators:
       - "cpu"
     templateDisplayName: "vLLM CPU ServingRuntime for KServe"
@@ -109,7 +122,7 @@ servingRuntime:
     displayName: "llama32-3b-cpu"
     image: "public.ecr.aws/q9t5s3a7/vllm-cpu-release-repo:latest"
   hpu:
-    name: "llama32-3b-hpu"
+    name: "llama32-3b-hpu" # must match with inferenceService runtime
     recommendedAccelerators:
       - "habana.ai/gaudi"
     templateDisplayName: "vLLM Intel Gaudi Accelerator ServingRuntime for KServe"
