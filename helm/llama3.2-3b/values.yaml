@@ -78,6 +78,18 @@ env:
   TRANSFORMERS_CACHE: "/root/.cache/huggingface"
   HF_HOME: "/root/.cache/huggingface"
 
+# modelHardware configuration, used for both inferenceService and servingRuntime
+modelHardware:
+  gpu: 
+    name: "llama3-2-3b-gpu"
+    displayName: "llama3.2-3b-gpu"
+  cpu: 
+    name: "llama3-2-3b-cpu"
+    displayName: "llama3.2-3b-cpu"
+  hpu: 
+    name: "llama3-2-3b-hpu"
+    displayName: "llama3.2-3b-hpu"
+
 # InferenceService configuration
 inferenceService:
   common:
@@ -86,18 +98,6 @@ inferenceService:
     modelFormat: "vLLM"
     modelName: ""
     storageUri: "oci://quay.io/redhat-ai-services/modelcar-catalog:llama-3.2-3b-instruct"
-  gpu:
-    name: llama3-2-3b-gpu
-    displayName: "llama3.2-3b-gpu"
-    runtime: "llama3-2-3b-gpu" # must match with servingRuntime name
-  cpu:
-    name: llama3-2-3b-cpu
-    displayName: "llama3.2-3b-cpu"
-    runtime: "llama3-2-3b-cpu" # must match with servingRuntime name
-  hpu:
-    name: llama3-2-3b-hpu
-    displayName: "llama3.2-3b-hpu"
-    runtime: "llama3-2-3b-hpu" # must match with servingRuntime name
 
 # Serving Runtime configuration
 servingRuntime:
@@ -107,29 +107,23 @@ servingRuntime:
     memBufferBytes: 134217728  # 128MB
     modelLoadingTimeoutMillis: 90000  # 90 seconds
   gpu:
-    name: "llama32-3b-gpu" # must match with inferenceService runtime
     recommendedAccelerators:
       - "nvidia.com/gpu"
     templateDisplayName: "vLLM ServingRuntime for KServe"
     templateName: "vllm-runtime"
     acceleratorName: "gpu"
-    displayName: "llama32-3b-gpu"
     image: "quay.io/modh/vllm@sha256:0d55419f3d168fd80868a36ac89815dded9e063937a8409b7edf3529771383f3"
   cpu:
-    name: "llama32-3b-cpu" # must match with inferenceService runtime
     recommendedAccelerators:
       - "cpu"
     templateDisplayName: "vLLM CPU ServingRuntime for KServe"
     templateName: "vllm-cpu-runtime"
     acceleratorName: "None"
-    displayName: "llama32-3b-cpu"
     image: "public.ecr.aws/q9t5s3a7/vllm-cpu-release-repo:latest"
   hpu:
-    name: "llama32-3b-hpu" # must match with inferenceService runtime
     recommendedAccelerators:
       - "habana.ai/gaudi"
     templateDisplayName: "vLLM Intel Gaudi Accelerator ServingRuntime for KServe"
     templateName: "vllm-gaudi-runtime"
     acceleratorName: "gaudi-hpu-profile"
-    displayName: "llama32-3b-hpu"
     image: "quay.io/modh/vllm@sha256:af6a071be36d8a99476f145d1589d7ede97d2760b93335b14ca26de7417e438c"

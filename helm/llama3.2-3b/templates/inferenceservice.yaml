@@ -1,12 +1,12 @@
 apiVersion: serving.kserve.io/v1beta1
 kind: InferenceService
 metadata:
-  name: {{ .Values.inferenceService.name | default "llama3-2-3b" }}
+  name: {{ index .Values.modelHardware .Values.hardware "name" | default "llama3-2-3b" }}
   labels:
     {{- include "llama3-2-3b.labels" . | nindent 4 }}
     opendatahub.io/dashboard: 'true'
   annotations:
-    openshift.io/display-name: {{ .Values.inferenceService.displayName | default "llama3.2-3b" }}
+    openshift.io/display-name: {{ index .Values.modelHardware .Values.hardware "displayName" | default "llama3.2-3b" }}
     serving.knative.openshift.io/enablePassthrough: 'true'
     sidecar.istio.io/inject: 'true'
     sidecar.istio.io/rewriteAppHTTPProbers: 'true'
@@ -20,20 +20,8 @@ spec:
         name: {{ .Values.inferenceService.modelFormat | default "vLLM" }}
       name: {{ .Values.inferenceService.modelName | default "" }}
       resources:
-        {{- if eq .Values.hardware "gpu" }}
-        {{- toYaml .Values.resources.gpu | nindent 6 }}
-        {{- else if eq .Values.hardware "cpu" }}
-        {{- toYaml .Values.resources.cpu | nindent 6 }}
-        {{- else if eq .Values.hardware "hpu" }}
-        {{- toYaml .Values.resources.hpu | nindent 6 }}
-        {{- end }}
-      runtime: {{ .Values.inferenceService.runtime | default "llama3-2-3b" }}
+        {{- toYaml (index .Values.resources .Values.hardware) | nindent 6 }}
+      runtime: {{ index .Values.modelHardware .Values.hardware "name" | default "llama3-2-3b" }}
       storageUri: {{ .Values.inferenceService.storageUri | default "oci://quay.io/redhat-ai-services/modelcar-catalog:llama-3.2-3b-instruct" }}
     tolerations:
-      {{- if eq .Values.hardware "gpu" }}
-      {{- toYaml .Values.tolerations.gpu | nindent 4 }}
-      {{- else if eq .Values.hardware "cpu" }}
-      {{- toYaml .Values.tolerations.cpu | nindent 4 }}
-      {{- else if eq .Values.hardware "hpu" }}
-      {{- toYaml .Values.tolerations.hpu | nindent 4 }}
-      {{- end }}
+      {{- toYaml (index .Values.tolerations .Values.hardware) | nindent 4 }}
