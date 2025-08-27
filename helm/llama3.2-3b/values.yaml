@@ -87,12 +87,15 @@ inferenceService:
     modelName: ""
     storageUri: "oci://quay.io/redhat-ai-services/modelcar-catalog:llama-3.2-3b-instruct"
   gpu:
+    name: llama3-2-3b-gpu
     displayName: "llama3.2-3b-gpu"
     runtime: "llama3-2-3b-gpu" # must match with servingRuntime name
   cpu:
+    name: llama3-2-3b-cpu
     displayName: "llama3.2-3b-cpu"
     runtime: "llama3-2-3b-cpu" # must match with servingRuntime name
   hpu:
+    name: llama3-2-3b-hpu
     displayName: "llama3.2-3b-hpu"
     runtime: "llama3-2-3b-hpu" # must match with servingRuntime name
 
