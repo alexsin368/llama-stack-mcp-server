@@ -6,47 +6,46 @@ serviceAccount:
   create: true
   name: ""
 
-# Hardware configuration
-hardware: "hpu"  # Options: "gpu", "cpu", "hpu"
+# User-customizable configuration
+namespace: "llama-stack-mcp-demo"
+hardware: "gpu"  # Options: "gpu", "cpu", "hpu"
 
 # Model configuration
 model:
   maxModelLen: 8192
 
-# Resource requirements (adjust based on availability)
 resources:
   gpu:
     limits:
-      nvidia.com/gpu: 1
-      memory: 24Gi
-      cpu: 4
+      nvidia.com/gpu: "1"
+      memory: "24Gi"
+      cpu: "4"
     requests:
-      nvidia.com/gpu: 1
-      memory: 16Gi
-      cpu: 2
+      nvidia.com/gpu: "1"
+      memory: "16Gi"
+      cpu: "2"
   cpu:
     limits:
-      cpu: '8'
-      memory: 24Gi
+      cpu: "8"
+      memory: "24Gi"
     requests:
-      cpu: '4'
-      memory: 12Gi
+      cpu: "4"
+      memory: "12Gi"
   hpu:
     limits:
-      cpu: '6'
-      memory: 16Gi
-      habana.ai/gaudi: '1'
+      cpu: "6"
+      memory: "16Gi"
+      habana.ai/gaudi: "1"
     requests:
-      cpu: '4'
-      memory: 8Gi
-      habana.ai/gaudi: '1'
+      cpu: "4"
+      memory: "8Gi"
+      habana.ai/gaudi: "1"
 
 nodeSelector:
   gpu:
     nvidia.com/gpu.present: "true"
   cpu: {}
-  hpu:
-    habana.ai/gaudi: "true"
+  hpu: {}
 
 tolerations:
   gpu:
@@ -54,10 +53,7 @@ tolerations:
       key: nvidia.com/gpu
       value: NVIDIA-A10G-SHARED
   cpu: []
-  hpu:
-    - key: "habana.ai/gaudi"
-      operator: "Exists"
-      effect: "NoSchedule"
+  hpu: []
 
 affinity:
   gpu:

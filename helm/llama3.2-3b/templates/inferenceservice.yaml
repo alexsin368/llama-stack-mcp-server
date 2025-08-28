@@ -15,13 +15,19 @@ spec:
   predictor:
     maxReplicas: {{ .Values.inferenceService.maxReplicas | default 1 }}
     minReplicas: {{ .Values.inferenceService.minReplicas | default 1 }}
+    containers:
+    - name: kserve-container  
+      {{- with (index .Values.resources .Values.hardware)}}
+      resources:
+        {{- toYaml . | nindent 6 }}
+      {{- end }}
     model:
       modelFormat:
         name: {{ .Values.inferenceService.modelFormat | default "vLLM" }}
       name: {{ .Values.inferenceService.modelName | default "" }}
-      resources:
-        {{- toYaml (index .Values.resources .Values.hardware) | nindent 6 }}
       runtime: {{ index .Values.modelHardware .Values.hardware "name" | default "llama3-2-3b" }}
       storageUri: {{ .Values.inferenceService.storageUri | default "oci://quay.io/redhat-ai-services/modelcar-catalog:llama-3.2-3b-instruct" }}
+    {{- with (index .Values.tolerations .Values.hardware)}}
     tolerations:
-      {{- toYaml (index .Values.tolerations .Values.hardware) | nindent 4 }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
